@@ -8,13 +8,19 @@ import (
 	"path/filepath"
 )
 
+type PersistentCookieJar interface {
+	http.CookieJar
+	Save() error
+	GetClient() *http.Client
+}
+
 type persistentJar struct {
 	jar           http.CookieJar
 	tempDirectory string
 	hosts         []string
 }
 
-func NewJar(hosts []string, tempDirectory string) (http.CookieJar, error) {
+func NewJar(hosts []string, tempDirectory string) (PersistentCookieJar, error) {
 	pj := &persistentJar{
 		tempDirectory: tempDirectory,
 		hosts:         hosts,
