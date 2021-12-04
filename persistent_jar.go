@@ -55,5 +55,5 @@ func NewJar(hosts []string, tempDirectory string) (PersistentCookieJar, error) {
 		pj.jar.SetCookies(hydrate(host, cookies))
 	}
 
-	return &persistentJar{}, nil
+	return pj, nil
 }
