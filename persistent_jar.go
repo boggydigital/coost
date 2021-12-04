@@ -2,6 +2,7 @@ package cooja
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"net/http/cookiejar"
 	"os"
@@ -46,7 +47,8 @@ func NewJar(hosts []string, tempDirectory string) (PersistentCookieJar, error) {
 
 	var hostCookies map[string]map[string]string
 	if err := json.NewDecoder(cookiesFile).Decode(&hostCookies); err != nil {
-		return pj, err
+		log.Println(err)
+		return pj, nil
 	}
 
 	for host, cookies := range hostCookies {
