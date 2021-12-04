@@ -10,7 +10,15 @@ import (
 const cookiesFilename = "cookies.json"
 
 func (lj persistentJar) Save() error {
-	cookiesFile, err := os.Create(filepath.Join(lj.tempDirectory, cookiesFilename))
+
+	if _, err := os.Stat(lj.tempDirectory); os.IsNotExist(err) {
+		if err := os.MkdirAll(lj.tempDirectory, 0755); err != nil {
+			return err
+		}
+	}
+
+	cookiesPath := filepath.Join(lj.tempDirectory, cookiesFilename)
+	cookiesFile, err := os.Create(cookiesPath)
 	if err != nil {
 		return err
 	}

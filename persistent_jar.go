@@ -33,6 +33,11 @@ func NewJar(hosts []string, tempDirectory string) (PersistentCookieJar, error) {
 	}
 
 	cookiePath := filepath.Join(pj.tempDirectory, cookiesFilename)
+
+	if _, err := os.Stat(cookiePath); os.IsNotExist(err) {
+		return pj, nil
+	}
+
 	cookiesFile, err := os.Open(cookiePath)
 	if err != nil {
 		return pj, err
