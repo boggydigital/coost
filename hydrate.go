@@ -8,9 +8,20 @@ import (
 
 var defaultCookieLifespan = time.Hour * 24 * 30
 
-const httpsScheme = "https"
+const (
+	httpsScheme     = "https"
+	cookieHeaderKey = "cookie-header"
+)
 
 func hydrate(host string, cookieValues map[string]string) (*url.URL, []*http.Cookie) {
+
+	//replace cookie-header with extended values
+	if content, ok := cookieValues[cookieHeaderKey]; ok {
+		for key, value := range expandCookieHeader(content) {
+			cookieValues[key] = value
+		}
+		delete(cookieValues, cookieHeaderKey)
+	}
 
 	cookies := make([]*http.Cookie, 0, len(cookieValues))
 
