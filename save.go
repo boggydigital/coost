@@ -11,9 +11,11 @@ const cookiesFilename = "cookies.json"
 
 func (lj persistentJar) Save() error {
 
-	if _, err := os.Stat(lj.tempDirectory); os.IsNotExist(err) {
-		if err := os.MkdirAll(lj.tempDirectory, 0755); err != nil {
-			return err
+	if lj.tempDirectory != "" {
+		if _, err := os.Stat(lj.tempDirectory); os.IsNotExist(err) {
+			if err := os.MkdirAll(lj.tempDirectory, 0755); err != nil {
+				return err
+			}
 		}
 	}
 
