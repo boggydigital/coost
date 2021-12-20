@@ -3,6 +3,7 @@ package cooja
 import (
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 )
 
@@ -23,6 +24,10 @@ func hydrate(host string, cookieValues map[string]string) (*url.URL, []*http.Coo
 		delete(cookieValues, cookieHeaderKey)
 	}
 
+	if !strings.HasPrefix(host, ".") {
+		host = "." + host
+	}
+
 	cookies := make([]*http.Cookie, 0, len(cookieValues))
 
 	for cookie, value := range cookieValues {
@@ -30,7 +35,7 @@ func hydrate(host string, cookieValues map[string]string) (*url.URL, []*http.Coo
 			Name:     cookie,
 			Value:    value,
 			Path:     "/",
-			Domain:   "." + host,
+			Domain:   host,
 			Expires:  time.Now().Add(defaultCookieLifespan),
 			Secure:   true,
 			HttpOnly: true,
