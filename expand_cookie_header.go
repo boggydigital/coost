@@ -14,8 +14,8 @@ func expandCookieHeader(cookieHeader string) map[string]string {
 	for _, kvp := range kvps {
 		kv := strings.Split(kvp, keyValueSep)
 		if len(kv) == 2 {
-			key := strings.Trim(kv[0], " ")
-			value := strings.Trim(kv[1], " ")
+			key := strings.TrimSpace(kv[0])
+			value := strings.TrimSpace(kv[1])
 			kvm[key] = value
 		}
 	}

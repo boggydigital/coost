@@ -31,7 +31,7 @@ func hydrate(host string, cookieValues map[string]string) (*url.URL, []*http.Coo
 	cookies := make([]*http.Cookie, 0, len(cookieValues))
 
 	for cookie, value := range cookieValues {
-		cookie := &http.Cookie{
+		ck := &http.Cookie{
 			Name:     cookie,
 			Value:    value,
 			Path:     "/",
@@ -40,7 +40,7 @@ func hydrate(host string, cookieValues map[string]string) (*url.URL, []*http.Coo
 			Secure:   true,
 			HttpOnly: true,
 		}
-		cookies = append(cookies, cookie)
+		cookies = append(cookies, ck)
 	}
 
 	u := &url.URL{

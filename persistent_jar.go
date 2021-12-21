@@ -11,20 +11,20 @@ import (
 
 type PersistentCookieJar interface {
 	http.CookieJar
-	Save() error
-	GetClient() *http.Client
+	Store() error
+	NewClient() *http.Client
 }
 
 type persistentJar struct {
-	jar           http.CookieJar
-	tempDirectory string
-	hosts         []string
+	jar       http.CookieJar
+	directory string
+	hosts     []string
 }
 
-func NewJar(hosts []string, tempDirectory string) (PersistentCookieJar, error) {
+func NewJar(hosts []string, dir string) (PersistentCookieJar, error) {
 	pj := &persistentJar{
-		tempDirectory: tempDirectory,
-		hosts:         hosts,
+		directory: dir,
+		hosts:     hosts,
 	}
 
 	var err error
@@ -33,7 +33,7 @@ func NewJar(hosts []string, tempDirectory string) (PersistentCookieJar, error) {
 		return pj, err
 	}
 
-	cookiePath := filepath.Join(pj.tempDirectory, cookiesFilename)
+	cookiePath := filepath.Join(pj.directory, cookiesFilename)
 
 	if _, err := os.Stat(cookiePath); os.IsNotExist(err) {
 		return pj, nil

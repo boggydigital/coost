@@ -9,17 +9,17 @@ import (
 
 const cookiesFilename = "cookies.json"
 
-func (lj persistentJar) Save() error {
+func (pj persistentJar) Store() error {
 
-	if lj.tempDirectory != "" {
-		if _, err := os.Stat(lj.tempDirectory); os.IsNotExist(err) {
-			if err := os.MkdirAll(lj.tempDirectory, 0755); err != nil {
+	if pj.directory != "" {
+		if _, err := os.Stat(pj.directory); os.IsNotExist(err) {
+			if err := os.MkdirAll(pj.directory, 0755); err != nil {
 				return err
 			}
 		}
 	}
 
-	cookiesPath := filepath.Join(lj.tempDirectory, cookiesFilename)
+	cookiesPath := filepath.Join(pj.directory, cookiesFilename)
 	cookiesFile, err := os.Create(cookiesPath)
 	if err != nil {
 		return err
@@ -28,12 +28,12 @@ func (lj persistentJar) Save() error {
 	defer cookiesFile.Close()
 
 	hostCookies := make(map[string]map[string]string)
-	for _, host := range lj.hosts {
+	for _, host := range pj.hosts {
 		u := &url.URL{
 			Scheme: httpsScheme,
 			Host:   host,
 		}
-		hostCookies[host] = dehydrate(lj.Cookies(u))
+		hostCookies[host] = dehydrate(pj.Cookies(u))
 	}
 
 	return json.NewEncoder(cookiesFile).Encode(hostCookies)
