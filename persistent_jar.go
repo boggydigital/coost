@@ -2,7 +2,7 @@ package pesco
 
 import (
 	"encoding/json"
-	"log"
+	"github.com/boggydigital/nod"
 	"net/http"
 	"net/http/cookiejar"
 	"os"
@@ -12,13 +12,37 @@ import (
 type PersistentCookieJar interface {
 	http.CookieJar
 	Store() error
-	NewClient() *http.Client
+	NewHttpClient() *http.Client
 }
 
 type persistentJar struct {
 	jar       http.CookieJar
 	directory string
 	hosts     []string
+}
+
+func readHostCookies(directory string) (map[string]map[string]string, error) {
+
+	hostCookies := make(map[string]map[string]string)
+
+	cookiePath := filepath.Join(directory, cookiesFilename)
+	nod.Log("reading host cookies from %s", cookiePath)
+
+	if _, err := os.Stat(cookiePath); err != nil {
+		nod.Log("error getting %s stat: %s", cookiePath, err.Error())
+		return hostCookies, nil
+	}
+
+	cookiesFile, err := os.Open(cookiePath)
+	if err != nil {
+		nod.Log("error opening %s: %s", cookiePath, err.Error())
+		return hostCookies, err
+	}
+	defer cookiesFile.Close()
+
+	err = json.NewDecoder(cookiesFile).Decode(&hostCookies)
+
+	return hostCookies, err
 }
 
 func NewJar(hosts []string, dir string) (PersistentCookieJar, error) {
@@ -33,26 +57,15 @@ func NewJar(hosts []string, dir string) (PersistentCookieJar, error) {
 		return pj, err
 	}
 
-	cookiePath := filepath.Join(pj.directory, cookiesFilename)
-
-	if _, err := os.Stat(cookiePath); os.IsNotExist(err) {
-		return pj, nil
-	}
-
-	cookiesFile, err := os.Open(cookiePath)
-	if err != nil {
+	hostCookies, err := readHostCookies(pj.directory)
+	if !os.IsNotExist(err) {
 		return pj, err
 	}
-	defer cookiesFile.Close()
 
-	var hostCookies map[string]map[string]string
-	if err := json.NewDecoder(cookiesFile).Decode(&hostCookies); err != nil {
-		log.Println(err)
-		return pj, nil
-	}
-
-	for host, cookies := range hostCookies {
-		pj.jar.SetCookies(hydrate(host, cookies))
+	for _, host := range hosts {
+		if cookies, ok := hostCookies[host]; ok {
+			pj.jar.SetCookies(hydrate(host, cookies))
+		}
 	}
 
 	return pj, nil

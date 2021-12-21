@@ -8,7 +8,7 @@ import (
 
 const defaultTimeout = 20 * time.Second
 
-func (pj persistentJar) NewClient() *http.Client {
+func (pj persistentJar) NewHttpClient() *http.Client {
 	return &http.Client{
 		Transport: &http.Transport{
 			DialContext: (&net.Dialer{
