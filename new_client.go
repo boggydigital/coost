@@ -1,4 +1,4 @@
-package cooja
+package pesco
 
 import (
 	"net"
