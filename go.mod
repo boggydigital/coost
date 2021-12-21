@@ -1,4 +1,4 @@
-module github.com/boggydigital/pesco
+module github.com/boggydigital/coost
 
 go 1.17
 

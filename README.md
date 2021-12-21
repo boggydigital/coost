@@ -1,14 +1,14 @@
-# pesco
+# coost
 
-pesco is a persistently stored cookies module that can support apps and services authentication
-needs. pesco requires minimal configuration for consumers and support (manual) import from the
+coost is a persistently stored cookies module that can support apps and services authentication
+needs. coost requires minimal configuration for consumers and support (manual) import from the
 browser cookies.
 
-## Using pesco
+## Using coost
 
-Adding pesco module to your Go app: `go get github.com/boggydigital/pesco`
+Adding coost module to your Go app: `go get github.com/boggydigital/coost`
 
-After that, here is how pesco is commonly used:
+After that, here is how coost is commonly used:
 
 1) Create new (persistent) cookie jar;
 2) Get *http.Client from that (persistent) cookie jar;
@@ -24,7 +24,7 @@ In order to create a new (persistent) cookie jar you need to provide two pieces 
 1) Slice of hosts for the jar (e.g. "example.com");
 2) Directory to store the jar, "" value representing process working directory.
 
-Clients need to call `jar, err := pesco.NewJar(hosts, directory)` and would get a pointer to a jar
+Clients need to call `jar, err := coost.NewJar(hosts, directory)` and would get a pointer to a jar
 object that can be used to get an `http.Client` instance as well as `Store` that jar.
 
 ### Getting and using http.Client
@@ -47,7 +47,7 @@ any errors that can happen during saving cookies file to the storage.
 An extended form of the same call that would allow handling errors would be:
 
 ```go
-defer func (jar pesco.PersistentCookieJar) {
+defer func (jar coost.PersistentCookieJar) {
     if err := jar.Store(); err != nil {
     //handle Store error
     }
@@ -56,7 +56,7 @@ defer func (jar pesco.PersistentCookieJar) {
 
 ## cookies.json file
 
-Please note that cookies file created by pesco is not encrypted or obfuscated in any way.
+Please note that cookies file created by coost is not encrypted or obfuscated in any way.
 
 cookies.json is a trivial JSON structure that stores cookies by hosts:
 
@@ -72,13 +72,13 @@ cookies.json is a trivial JSON structure that stores cookies by hosts:
 }
 ```
 
-## Using pesco to support cookie-based authentication
+## Using coost to support cookie-based authentication
 
-pesco is agnostic to the authentication model used by the service. Some common scenarios using
+coost is agnostic to the authentication model used by the service. Some common scenarios using
 cookies:
 
 1) Application handles authentication and provides prompt for username, password, 2FA, etc. Server
-   sets response cookies that are then persisted by pesco and users won't need to re-authenticate on
+   sets response cookies that are then persisted by coost and users won't need to re-authenticate on
    every application session;
 2) Users copy session cookies from an existing browser session.
 
@@ -89,7 +89,7 @@ Both scenarios are detailed below.
 Detailing full authentication flow is out of the scope for this document and most likely would be
 application specific. There are few callouts that would be helpful to clients:
 
-- Make sure you're using `http.Client` with a cookie jar initialized by pesco for every
+- Make sure you're using `http.Client` with a cookie jar initialized by coost for every
   authentication related request in order to get response cookies;
 - Make sure to `Store` the jar when meaningful changes happen (e.g. when the authentication flow
   completes).
@@ -99,7 +99,7 @@ application specific. There are few callouts that would be helpful to clients:
 In certain scenarios it might not be practical to implement a full authentication flow - for example
 for headless services that don't expect or allow user input.
 
-To support those scenarios pesco provides (relatively) easy way to import existing browser session
+To support those scenarios coost provides (relatively) easy way to import existing browser session
 cookies. Here is how to do that (using Google Chrome as the browser, though it should generally work
 with any browser):
 
@@ -136,7 +136,7 @@ Some tips you can use to verify `cookie-header` has been imported correctly:
 COOKIE1=cookie-value1; COOKIE2=cookie-value2
 ```
 
-2) When encountering `cookie-header` value, pesco would split the contents into individual key-value
+2) When encountering `cookie-header` value, coost would split the contents into individual key-value
    pairs and remove original `cookie-header` entry;
 3) Split `cookie-header` values are stored as separate values after `Store` is invoked, so
    effectively `cookie-header` is only imported, never preserved. If you see it after
@@ -144,7 +144,7 @@ COOKIE1=cookie-value1; COOKIE2=cookie-value2
 
 ## General troubleshooting
 
-pesco has been designed as a thin-wrapper on top of Go `http.CookieJar` and has two main points of
+coost has been designed as a thin-wrapper on top of Go `http.CookieJar` and has two main points of
 interest:
 
 ### Restoring cookies into the jar
@@ -168,7 +168,7 @@ Expectations and common problems to check for:
 
 ### Using nod for further debugging
 
-pesco has been tactically instrumented with `github.com/boggydigital/nod` logging calls, and clients
+coost has been tactically instrumented with `github.com/boggydigital/nod` logging calls, and clients
 might find enabling nod logging output to be helpful. Please check `github.com/boggydigital/nod` for
 more details.
 
