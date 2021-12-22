@@ -58,7 +58,8 @@ func NewJar(hosts []string, dir string) (PersistentCookieJar, error) {
 	}
 
 	hostCookies, err := readHostCookies(pj.directory)
-	if !os.IsNotExist(err) {
+	if err != nil &&
+		!os.IsNotExist(err) {
 		return pj, err
 	}
 
