@@ -3,7 +3,6 @@ package coost
 import (
 	"net/http"
 	"net/url"
-	"strings"
 	"time"
 )
 
@@ -22,10 +21,6 @@ func hydrate(host string, cookieValues map[string]string) (*url.URL, []*http.Coo
 			cookieValues[key] = value
 		}
 		delete(cookieValues, cookieHeaderKey)
-	}
-
-	if !strings.HasPrefix(host, ".") {
-		host = "." + host
 	}
 
 	cookies := make([]*http.Cookie, 0, len(cookieValues))
