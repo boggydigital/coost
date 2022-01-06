@@ -1,6 +1,6 @@
 # coost
 
-coost is a persistent cookie storage module that simplifies storing and recreating cookie jar between app sessions. coost requires minimal configuration and supports (manual) importing existing session cookies from the browser.
+coost is a persistent cookie storage module that simplifies storing and recreating cookie jar between app sessions. coost requires minimal configuration and supports (manual) importing existing session cookies from a browser.
 
 ## Using coost
 
@@ -52,22 +52,18 @@ default timeouts for the `http.Client` instance.
 Alternatively, clients can use the jar they got as a result of `NewJar` method in their
 own `http.Client` instance.
 
-## cookies.json file
+## cookies.txt file
 
 Please note that cookies file created by coost is not encrypted or obfuscated in any way. This is by design.
 
-`cookies.json` is a trivial JSON structure that stores cookies by hosts:
+`cookies.txt` is a trivial text structure that stores space indented cookie name value pairs by hosts:
 
-```json
-{
-  "host1": {
-    "cookie1": "cookie1_value",
-    "cookie2": "cookie2_value"
-  },
-  "host2": {
-    "cookie1": "cookie1_value"
-  }
-}
+```text
+host1
+ cookie1=cookie1_value
+ cookie2=cookie2_value
+host2
+ cookie1=cookie1_value
 ```
 
 ## Using coost to support cookie-based authentication
@@ -112,16 +108,13 @@ with any browser);
 4) Select "Headers" tab in the request preview section;
 5) Navigate to the `Request Headers` section (not `Response Headers`!);
 6) Find `cookie:` header and `Copy value` for that header;
-7) Open (or create) `cookies.json` for the client application, update (or create) a new section for the host in
+7) Open (or create) `cookies.txt` for the client application, update (or create) a new section for the host in
    question (e.g. `example.com`);
 8) In that host section add new key `cookie-header` and paste the copied value in quotes:
 
-```json
-{
-  "example.com": {
-    "cookie-header": "<paste-copied-value-here>"
-  }
-}
+```text
+example.com
+ cookie-header=<paste-copied-value-here>
 ```
 
 9) (Repeat steps 2-8 for any additional hosts that client application might require).
@@ -135,8 +128,7 @@ Some tips you can use to verify `cookie-header` has been imported correctly:
 COOKIE1=cookie-value1; COOKIE2=cookie-value2
 ```
 
-2) When encountering `cookie-header` value, coost would split the contents into individual key-value
-   pairs and remove original `cookie-header` entry;
+2) `cookie-header` should be the only name value pair under a host, since it'll replace any other values;
 3) Split `cookie-header` values are stored as separate values after `Store` method is invoked, so
    effectively `cookie-header` is only imported, never persisted. If you see it after
    calling `Store` - something is wrong.
@@ -159,7 +151,7 @@ Expectations and common problems to check for:
    the current app working directory at the moment of `NewJar` method call. When using specific directory
    make sure the file is present at this location and is accessible to the app;
 2) Only the hosts specified for the `NewJar` method call are used to populate cookie jar, regardless of
-   what hosts are present in `cookie.json`. This is by design;
+   what hosts are present in `cookie.txt`. This is by design;
 3) `http.Client` with the jar is used for requests. Just loading the cookies into the jar does nothing - it's only useful, when called through an `http.Client` with that jar.
 
 ### Storing cookie jar

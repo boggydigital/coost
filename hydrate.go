@@ -3,39 +3,44 @@ package coost
 import (
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 )
 
 var defaultCookieLifespan = time.Hour * 24 * 30
 
 const (
-	httpsScheme     = "https"
-	cookieHeaderKey = "cookie-header"
+	httpsScheme      = "https"
+	cookieHeaderKey  = "cookie-header"
+	keyValuePairsSep = "; "
 )
 
-func hydrate(host string, cookieValues map[string]string) (*url.URL, []*http.Cookie) {
+func hydrate(host string, cnv []string) (*url.URL, []*http.Cookie) {
 
 	//replace cookie-header with extended values
-	if content, ok := cookieValues[cookieHeaderKey]; ok {
-		for key, value := range expandCookieHeader(content) {
-			cookieValues[key] = value
+	if len(cnv) == 1 {
+		if name, value, ok := strings.Cut(cnv[0], nameValueSep); ok {
+			if name == cookieHeaderKey {
+				cnv = strings.Split(value, keyValuePairsSep)
+			}
 		}
-		delete(cookieValues, cookieHeaderKey)
 	}
 
-	cookies := make([]*http.Cookie, 0, len(cookieValues))
+	cookies := make([]*http.Cookie, 0, len(cnv))
 
-	for cookie, value := range cookieValues {
-		ck := &http.Cookie{
-			Name:     cookie,
-			Value:    value,
-			Path:     "/",
-			Domain:   host,
-			Expires:  time.Now().Add(defaultCookieLifespan),
-			Secure:   true,
-			HttpOnly: true,
+	for _, nv := range cnv {
+		if name, value, ok := strings.Cut(nv, nameValueSep); ok {
+			ck := &http.Cookie{
+				Name:     name,
+				Value:    value,
+				Path:     "/",
+				Domain:   host,
+				Expires:  time.Now().Add(defaultCookieLifespan),
+				Secure:   true,
+				HttpOnly: true,
+			}
+			cookies = append(cookies, ck)
 		}
-		cookies = append(cookies, ck)
 	}
 
 	u := &url.URL{

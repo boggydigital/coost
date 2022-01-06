@@ -1,8 +1,7 @@
 package coost
 
 import (
-	"encoding/json"
-	"github.com/boggydigital/nod"
+	"github.com/boggydigital/wits"
 	"net/http"
 	"net/http/cookiejar"
 	"os"
@@ -16,39 +15,15 @@ type PersistentCookieJar interface {
 }
 
 type persistentJar struct {
-	jar       http.CookieJar
-	directory string
-	hosts     []string
-}
-
-func readHostCookies(directory string) (map[string]map[string]string, error) {
-
-	hostCookies := make(map[string]map[string]string)
-
-	cookiePath := filepath.Join(directory, cookiesFilename)
-	nod.Log("reading host cookies from %s", cookiePath)
-
-	if _, err := os.Stat(cookiePath); err != nil {
-		nod.Log("error getting %s stat: %s", cookiePath, err.Error())
-		return hostCookies, nil
-	}
-
-	cookiesFile, err := os.Open(cookiePath)
-	if err != nil {
-		nod.Log("error opening %s: %s", cookiePath, err.Error())
-		return hostCookies, err
-	}
-	defer cookiesFile.Close()
-
-	err = json.NewDecoder(cookiesFile).Decode(&hostCookies)
-
-	return hostCookies, err
+	jar   http.CookieJar
+	dir   string
+	hosts []string
 }
 
 func NewJar(hosts []string, dir string) (PersistentCookieJar, error) {
 	pj := &persistentJar{
-		directory: dir,
-		hosts:     hosts,
+		dir:   dir,
+		hosts: hosts,
 	}
 
 	var err error
@@ -57,7 +32,7 @@ func NewJar(hosts []string, dir string) (PersistentCookieJar, error) {
 		return pj, err
 	}
 
-	hostCookies, err := readHostCookies(pj.directory)
+	hostCookies, err := wits.Read(filepath.Join(pj.dir, cookiesFilename))
 	if err != nil &&
 		!os.IsNotExist(err) {
 		return pj, err

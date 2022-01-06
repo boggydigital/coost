@@ -1,11 +1,17 @@
 package coost
 
-import "net/http"
+import (
+	"fmt"
+	"net/http"
+)
 
-func dehydrate(cookies []*http.Cookie) map[string]string {
-	ckv := make(map[string]string, len(cookies))
+const nameValueSep = "="
+
+func dehydrate(cookies []*http.Cookie) []string {
+	cnv := make([]string, 0, len(cookies))
 	for _, ck := range cookies {
-		ckv[ck.Name] = ck.Value
+		cnv = append(cnv,
+			fmt.Sprintf("%s%s%s", ck.Name, nameValueSep, ck.Value))
 	}
-	return ckv
+	return cnv
 }
