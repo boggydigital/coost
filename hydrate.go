@@ -15,11 +15,19 @@ const (
 	keyValuePairsSep = "; "
 )
 
+// FIXME: replace with strings.Cut when 1.18 releases
+func cut(s, sep string) (before, after string, found bool) {
+	if i := strings.Index(s, sep); i >= 0 {
+		return s[:i], s[i+len(sep):], true
+	}
+	return s, "", false
+}
+
 func hydrate(host string, cnv []string) (*url.URL, []*http.Cookie) {
 
 	//replace cookie-header with extended values
 	if len(cnv) == 1 {
-		if name, value, ok := strings.Cut(cnv[0], nameValueSep); ok {
+		if name, value, ok := cut(cnv[0], nameValueSep); ok {
 			if name == cookieHeaderKey {
 				cnv = strings.Split(value, keyValuePairsSep)
 			}
@@ -29,7 +37,7 @@ func hydrate(host string, cnv []string) (*url.URL, []*http.Cookie) {
 	cookies := make([]*http.Cookie, 0, len(cnv))
 
 	for _, nv := range cnv {
-		if name, value, ok := strings.Cut(nv, nameValueSep); ok {
+		if name, value, ok := cut(nv, nameValueSep); ok {
 			ck := &http.Cookie{
 				Name:     name,
 				Value:    value,
