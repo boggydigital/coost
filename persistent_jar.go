@@ -32,7 +32,7 @@ func NewJar(hosts []string, dir string) (PersistentCookieJar, error) {
 		return pj, err
 	}
 
-	hostCookies, err := wits.Read(filepath.Join(pj.dir, cookiesFilename))
+	hostCookies, err := wits.ReadSectMap(filepath.Join(pj.dir, cookiesFilename))
 	if err != nil &&
 		!os.IsNotExist(err) {
 		return pj, err

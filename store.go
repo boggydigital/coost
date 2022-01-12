@@ -22,7 +22,7 @@ func (pj persistentJar) Store() error {
 	}
 
 	//read all cookies from the file to avoid overwriting with only the hosts for that jar
-	hostCookies, err := wits.Read(filepath.Join(pj.dir, cookiesFilename))
+	hostCookies, err := wits.ReadSectMap(filepath.Join(pj.dir, cookiesFilename))
 	if err != nil {
 		return err
 	}
@@ -44,5 +44,5 @@ func (pj persistentJar) Store() error {
 
 	defer cookiesFile.Close()
 
-	return wits.Write(hostCookies, cookiesPath)
+	return hostCookies.Write(cookiesPath)
 }

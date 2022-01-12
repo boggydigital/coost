@@ -10,45 +10,52 @@ import (
 var defaultCookieLifespan = time.Hour * 24 * 30
 
 const (
+	defaultPath      = "/"
 	httpsScheme      = "https"
 	cookieHeaderKey  = "cookie-header"
 	keyValuePairsSep = "; "
+	keyValueSep      = "="
 )
 
-// FIXME: replace with strings.Cut when 1.18 releases
-func cut(s, sep string) (before, after string, found bool) {
-	if i := strings.Index(s, sep); i >= 0 {
-		return s[:i], s[i+len(sep):], true
+func expandCookieHeader(cookieHeader string) map[string]string {
+	kvm := make(map[string]string)
+
+	kvps := strings.Split(cookieHeader, keyValuePairsSep)
+	for _, kvp := range kvps {
+		kv := strings.Split(kvp, keyValueSep)
+		if len(kv) == 2 {
+			key := strings.TrimSpace(kv[0])
+			val := strings.TrimSpace(kv[1])
+			kvm[key] = val
+		}
 	}
-	return s, "", false
+
+	return kvm
 }
 
-func hydrate(host string, cnv []string) (*url.URL, []*http.Cookie) {
+func hydrate(host string, cookies map[string]string) (*url.URL, []*http.Cookie) {
 
 	//replace cookie-header with extended values
-	if len(cnv) == 1 {
-		if name, value, ok := cut(cnv[0], nameValueSep); ok {
-			if name == cookieHeaderKey {
-				cnv = strings.Split(value, keyValuePairsSep)
-			}
+	if content, ok := cookies[cookieHeaderKey]; ok {
+		for key, value := range expandCookieHeader(content) {
+			cookies[key] = value
 		}
+		delete(cookies, cookieHeaderKey)
 	}
 
-	cookies := make([]*http.Cookie, 0, len(cnv))
+	cs := make([]*http.Cookie, 0, len(cookies))
 
-	for _, nv := range cnv {
-		if name, value, ok := cut(nv, nameValueSep); ok {
-			ck := &http.Cookie{
-				Name:     name,
-				Value:    value,
-				Path:     "/",
-				Domain:   host,
-				Expires:  time.Now().Add(defaultCookieLifespan),
-				Secure:   true,
-				HttpOnly: true,
-			}
-			cookies = append(cookies, ck)
+	for name, value := range cookies {
+		ck := &http.Cookie{
+			Name:     name,
+			Value:    value,
+			Path:     defaultPath,
+			Domain:   host,
+			Expires:  time.Now().Add(defaultCookieLifespan),
+			Secure:   true,
+			HttpOnly: true,
 		}
+		cs = append(cs, ck)
 	}
 
 	u := &url.URL{
@@ -56,5 +63,5 @@ func hydrate(host string, cnv []string) (*url.URL, []*http.Cookie) {
 		Host:   host,
 	}
 
-	return u, cookies
+	return u, cs
 }
