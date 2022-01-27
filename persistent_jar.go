@@ -2,27 +2,25 @@ package coost
 
 import (
 	"github.com/boggydigital/wits"
+	"io"
 	"net/http"
 	"net/http/cookiejar"
 	"os"
-	"path/filepath"
 )
 
 type PersistentCookieJar interface {
 	http.CookieJar
-	Store() error
+	Store(io.Writer) error
 	NewHttpClient() *http.Client
 }
 
 type persistentJar struct {
 	jar   http.CookieJar
-	dir   string
 	hosts []string
 }
 
-func NewJar(hosts []string, dir string) (PersistentCookieJar, error) {
+func NewJar(cookiesReader io.Reader, hosts ...string) (PersistentCookieJar, error) {
 	pj := &persistentJar{
-		dir:   dir,
 		hosts: hosts,
 	}
 
@@ -32,7 +30,7 @@ func NewJar(hosts []string, dir string) (PersistentCookieJar, error) {
 		return pj, err
 	}
 
-	hostCookies, err := wits.ReadSectMap(filepath.Join(pj.dir, cookiesFilename))
+	hostCookies, err := wits.ReadSectionKeyValue(cookiesReader)
 	if err != nil &&
 		!os.IsNotExist(err) {
 		return pj, err
