@@ -3,6 +3,7 @@ package coost
 import (
 	"net"
 	"net/http"
+	"net/http/cookiejar"
 	"os"
 	"time"
 )
@@ -32,7 +33,8 @@ func NewHttpClientFromFile(path string, hosts ...string) (*http.Client, error) {
 			return nil, err
 		} else {
 			pj := &persistentJar{}
-			return pj.NewHttpClient(), nil
+			pj.jar, err = cookiejar.New(nil)
+			return pj.NewHttpClient(), err
 		}
 	}
 
