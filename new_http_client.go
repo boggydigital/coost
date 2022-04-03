@@ -11,6 +11,12 @@ import (
 const defaultTimeout = 20 * time.Second
 
 func (pj persistentJar) NewHttpClient() *http.Client {
+	if pj.jar == nil {
+		var err error
+		if pj.jar, err = cookiejar.New(nil); err != nil {
+			return nil
+		}
+	}
 	return &http.Client{
 		Transport: &http.Transport{
 			DialContext: (&net.Dialer{
