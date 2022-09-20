@@ -1,8 +1,5 @@
 module github.com/boggydigital/coost
 
-go 1.17
+go 1.19
 
-require (
-	github.com/boggydigital/nod v0.1.9
-	github.com/boggydigital/wits v0.2.3
-)
+require github.com/boggydigital/wits v0.2.3
