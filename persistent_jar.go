@@ -2,7 +2,7 @@ package coost
 
 import (
 	"github.com/boggydigital/wits"
-	"io"
+	"golang.org/x/exp/maps"
 	"net/http"
 	"net/http/cookiejar"
 	"os"
@@ -10,7 +10,7 @@ import (
 
 type PersistentCookieJar interface {
 	http.CookieJar
-	Store(io.Writer) error
+	Store(string) error
 	NewHttpClient() *http.Client
 }
 
@@ -19,10 +19,8 @@ type persistentJar struct {
 	hosts []string
 }
 
-func NewJar(cookiesReader io.Reader, hosts ...string) (PersistentCookieJar, error) {
-	pj := &persistentJar{
-		hosts: hosts,
-	}
+func NewJar(path string) (PersistentCookieJar, error) {
+	pj := &persistentJar{}
 
 	var err error
 	pj.jar, err = cookiejar.New(nil)
@@ -30,16 +28,22 @@ func NewJar(cookiesReader io.Reader, hosts ...string) (PersistentCookieJar, erro
 		return pj, err
 	}
 
-	hostCookies, err := wits.ReadSectionKeyValue(cookiesReader)
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	hostCookies, err := wits.ReadSectionKeyValue(file)
 	if err != nil &&
 		!os.IsNotExist(err) {
 		return pj, err
 	}
 
-	for _, host := range hosts {
-		if cookies, ok := hostCookies[host]; ok {
-			pj.jar.SetCookies(hydrate(host, cookies))
-		}
+	pj.hosts = maps.Keys(hostCookies)
+
+	for host, cookies := range hostCookies {
+		pj.jar.SetCookies(hydrate(host, cookies))
 	}
 
 	return pj, nil

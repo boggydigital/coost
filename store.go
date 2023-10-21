@@ -2,11 +2,11 @@ package coost
 
 import (
 	"github.com/boggydigital/wits"
-	"io"
 	"net/url"
+	"os"
 )
 
-func (pj persistentJar) Store(cookieWriter io.Writer) error {
+func (pj persistentJar) Store(path string) error {
 
 	hostCookies := make(wits.SectionKeyValue)
 
@@ -18,5 +18,11 @@ func (pj persistentJar) Store(cookieWriter io.Writer) error {
 		hostCookies[host] = dehydrate(pj.Cookies(u))
 	}
 
-	return hostCookies.Write(cookieWriter)
+	file, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	return hostCookies.Write(file)
 }

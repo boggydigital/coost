@@ -49,7 +49,7 @@ func (pj persistentJar) NewHttpClient() *http.Client {
 	}
 }
 
-func NewHttpClientFromFile(path string, hosts ...string) (*http.Client, error) {
+func NewHttpClientFromFile(path string) (*http.Client, error) {
 
 	if _, err := os.Stat(path); err != nil {
 		if !os.IsNotExist(err) {
@@ -61,13 +61,7 @@ func NewHttpClientFromFile(path string, hosts ...string) (*http.Client, error) {
 		}
 	}
 
-	cookieFile, err := os.Open(path)
-	defer cookieFile.Close()
-	if err != nil {
-		return nil, err
-	}
-
-	pj, err := NewJar(cookieFile, hosts...)
+	pj, err := NewJar(path)
 	if err != nil {
 		return nil, err
 	}
