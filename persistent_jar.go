@@ -2,10 +2,11 @@ package coost
 
 import (
 	"github.com/boggydigital/wits"
-	"golang.org/x/exp/maps"
+	"maps"
 	"net/http"
 	"net/http/cookiejar"
 	"os"
+	"slices"
 )
 
 type PersistentCookieJar interface {
@@ -40,7 +41,7 @@ func NewJar(path string) (PersistentCookieJar, error) {
 		return pj, err
 	}
 
-	pj.hosts = maps.Keys(hostCookies)
+	pj.hosts = slices.Collect(maps.Keys(hostCookies))
 
 	for host, cookies := range hostCookies {
 		pj.jar.SetCookies(hydrate(host, cookies))
