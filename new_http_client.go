@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-const defaultTimeout = 20 * time.Second
+const defaultTimeout = 30 * time.Second
 
 func (pj persistentJar) NewHttpClient() *http.Client {
 	if pj.jar == nil {
@@ -19,31 +19,14 @@ func (pj persistentJar) NewHttpClient() *http.Client {
 	}
 	return &http.Client{
 		Transport: &http.Transport{
-			Proxy: nil,
 			DialContext: (&net.Dialer{
 				Timeout:   defaultTimeout,
 				KeepAlive: defaultTimeout,
 			}).DialContext,
-			Dial:                   nil,
-			DialTLSContext:         nil,
-			DialTLS:                nil,
-			TLSClientConfig:        nil,
-			TLSHandshakeTimeout:    defaultTimeout,
-			DisableKeepAlives:      false,
-			DisableCompression:     false,
-			MaxIdleConns:           0,
-			MaxIdleConnsPerHost:    0,
-			MaxConnsPerHost:        0,
-			IdleConnTimeout:        defaultTimeout,
-			ResponseHeaderTimeout:  defaultTimeout,
-			ExpectContinueTimeout:  defaultTimeout,
-			TLSNextProto:           nil,
-			ProxyConnectHeader:     nil,
-			GetProxyConnectHeader:  nil,
-			MaxResponseHeaderBytes: 0,
-			WriteBufferSize:        0,
-			ReadBufferSize:         0,
-			ForceAttemptHTTP2:      false,
+			TLSHandshakeTimeout:   defaultTimeout,
+			IdleConnTimeout:       defaultTimeout,
+			ResponseHeaderTimeout: defaultTimeout,
+			ExpectContinueTimeout: defaultTimeout,
 		},
 		Jar: pj,
 	}
