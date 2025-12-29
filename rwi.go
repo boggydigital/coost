@@ -63,7 +63,26 @@ func Write(jar http.CookieJar, u *url.URL, path string) error {
 	}
 	defer cf.Close()
 
-	return json.NewEncoder(cf).Encode(jar.Cookies(u))
+	cookies := jar.Cookies(u)
+	writeableCookies := make([]*http.Cookie, 0, len(cookies))
+
+	for _, cookie := range cookies {
+		writeableCookies = append(writeableCookies, newCookie(cookie.Name, cookie.Value, u))
+	}
+
+	return json.NewEncoder(cf).Encode(writeableCookies)
+}
+
+func newCookie(name, value string, u *url.URL) *http.Cookie {
+	return &http.Cookie{
+		Name:     name,
+		Value:    value,
+		Path:     rootPath,
+		Domain:   u.Host,
+		Expires:  time.Now().Add(30 * 24 * time.Hour),
+		Secure:   true,
+		HttpOnly: true,
+	}
 }
 
 func Import(cookieStr string, u *url.URL, path string) error {
@@ -80,16 +99,7 @@ func Import(cookieStr string, u *url.URL, path string) error {
 	for _, cnv := range cookieNameValues {
 		cnv = strings.TrimSpace(cnv)
 		if name, value, ok := strings.Cut(cnv, cookieNameValueSep); ok {
-			cookie := &http.Cookie{
-				Name:     name,
-				Value:    value,
-				Path:     rootPath,
-				Domain:   u.Host,
-				Expires:  time.Now().Add(30 * 24 * time.Hour),
-				Secure:   true,
-				HttpOnly: true,
-			}
-			cookies = append(cookies, cookie)
+			cookies = append(cookies, newCookie(name, value, u))
 		}
 	}
 
