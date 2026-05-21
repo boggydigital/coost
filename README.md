@@ -16,4 +16,5 @@ To import browser session cookies (instructions for Google Chrome, should work f
 4. Select "Headers" tab in the request preview section;
 5. Navigate to the `Request Headers` section (not `Response Headers`!);
 6. Find `cookie:` header and `Copy value` for that header (or select the value and copy);
-7. In application that uses `coost` - run `import-cookies` command with a cookie header value: `import-cookies "key1=value1; key2=value2;"`
+7. (Default) In application that provides import cookies form - paste the cookie header into input field and tap `Import`
+8. (Alternatively) In application that uses `coost` - run `import-cookies` command with a cookie header value: `import-cookies "key1=value1; key2=value2;"`
