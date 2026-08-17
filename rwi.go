@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"time"
 )
@@ -85,7 +86,7 @@ func newCookie(name, value string, u *url.URL) *http.Cookie {
 	}
 }
 
-func Import(cookieStr string, u *url.URL, path string) error {
+func Import(cookieStr string, u *url.URL, path string, filter ...string) error {
 
 	cookieStr = strings.TrimPrefix(cookieStr, cookieHeaderPfx)
 	cookieNameValues := strings.Split(cookieStr, cookieNameValuesSep)
@@ -99,6 +100,9 @@ func Import(cookieStr string, u *url.URL, path string) error {
 	for _, cnv := range cookieNameValues {
 		cnv = strings.TrimSpace(cnv)
 		if name, value, ok := strings.Cut(cnv, cookieNameValueSep); ok {
+			if len(filter) > 0 && !slices.Contains(filter, name) {
+				continue
+			}
 			cookies = append(cookies, newCookie(name, value, u))
 		}
 	}
