@@ -99,6 +99,7 @@ func Import(cookieStr string, u *url.URL, path string, filter ...string) error {
 
 	for _, cnv := range cookieNameValues {
 		cnv = strings.TrimSpace(cnv)
+		cnv = strings.ReplaceAll(cnv, "\"", "'")
 		if name, value, ok := strings.Cut(cnv, cookieNameValueSep); ok {
 			if len(filter) > 0 && !slices.Contains(filter, name) {
 				continue
